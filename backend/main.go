@@ -32,6 +32,10 @@ type Message struct {
 var clients = make(map[*Client]bool)
 var mu sync.Mutex
 
+// Global slice to hold messages for history
+var messageHistory []Message
+var historyMu sync.Mutex // Mutex to protect messageHistory
+
 // Handle WebSocket connections
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a WebSocket
@@ -52,6 +56,15 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("New client connected: %s\n", username)
 
+	// Send existing messages to the newly connected client
+	historyMu.Lock()
+	for _, msg := range messageHistory {
+		if err := ws.WriteJSON(msg); err != nil {
+			log.Println("Error sending message history:", err)
+		}
+	}
+	historyMu.Unlock()
+
 	// Infinite loop to keep the connection open
 	for {
 		// Read in a new message
@@ -65,6 +78,11 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// Include the username in the broadcast message
 		msg.Username = username
 		fmt.Printf("Received message from %s: %s\n", username, msg.Content)
+
+		// Add the message to the history
+		historyMu.Lock()
+		messageHistory = append(messageHistory, msg)
+		historyMu.Unlock()
 
 		// Broadcast the message to all clients
 		mu.Lock()
