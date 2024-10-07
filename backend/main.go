@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -11,10 +12,18 @@ import (
 // Upgrader is used to upgrade an HTTP connection to a WebSocket connection.
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		// Allow all connections by default (can modify this to restrict domains)
-		return true
+		return true // Allow all connections by default
 	},
 }
+
+// Client structure to hold the connection and any other necessary information
+type Client struct {
+	conn *websocket.Conn
+}
+
+// Global slice to hold connected clients and a mutex for concurrent access
+var clients = make(map[*Client]bool)
+var mu sync.Mutex
 
 // Handle WebSocket connections
 func handleConnections(w http.ResponseWriter, r *http.Request) {
@@ -25,25 +34,42 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	// A simple confirmation message to the client
+	// Create a new client and add it to the global clients map
+	client := &Client{conn: ws}
+	mu.Lock()
+	clients[client] = true
+	mu.Unlock()
+
 	fmt.Println("New client connected")
 
-	// Infinite loop to keep the connection open (handling will be done in future steps)
+	// Infinite loop to keep the connection open
 	for {
-		// Read in a new message as JSON and print it out
+		// Read in a new message
 		messageType, p, err := ws.ReadMessage()
 		if err != nil {
 			log.Println("Error reading message:", err)
 			break
 		}
+
 		fmt.Printf("Received message: %s\n", p)
 
-		// Echo the message back to the client
-		if err := ws.WriteMessage(messageType, p); err != nil {
-			log.Println("Error writing message:", err)
-			break
+		// Broadcast the message to all clients
+		mu.Lock()
+		for c := range clients {
+			if err := c.conn.WriteMessage(messageType, p); err != nil {
+				log.Println("Error writing message:", err)
+				c.conn.Close()
+				delete(clients, c)
+			}
 		}
+		mu.Unlock()
 	}
+
+	// Remove the client from the global clients map
+	mu.Lock()
+	delete(clients, client)
+	mu.Unlock()
+	fmt.Println("Client disconnected")
 }
 
 func main() {
