@@ -83,6 +83,18 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	delete(clients, client)
 	mu.Unlock()
 	fmt.Printf("Client disconnected: %s\n", username)
+
+	// Notify other clients about the disconnection
+	disconnectMsg := Message{Username: "Server", Content: fmt.Sprintf("%s has disconnected.", username)}
+	mu.Lock()
+	for c := range clients {
+		if err := c.conn.WriteJSON(disconnectMsg); err != nil {
+			log.Println("Error notifying clients:", err)
+			c.conn.Close()
+			delete(clients, c)
+		}
+	}
+	mu.Unlock()
 }
 
 func main() {
