@@ -16,9 +16,16 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Client structure to hold the connection and any other necessary information
+// Client structure to hold the connection, username, and any other necessary information
 type Client struct {
-	conn *websocket.Conn
+	conn     *websocket.Conn
+	username string
+}
+
+// Message structure for chat messages
+type Message struct {
+	Username string `json:"username"`
+	Content  string `json:"content"`
 }
 
 // Global slice to hold connected clients and a mutex for concurrent access
@@ -34,29 +41,35 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
+	// Get the username from the query parameters
+	username := r.URL.Query().Get("username")
+
 	// Create a new client and add it to the global clients map
-	client := &Client{conn: ws}
+	client := &Client{conn: ws, username: username}
 	mu.Lock()
 	clients[client] = true
 	mu.Unlock()
 
-	fmt.Println("New client connected")
+	fmt.Printf("New client connected: %s\n", username)
 
 	// Infinite loop to keep the connection open
 	for {
 		// Read in a new message
-		messageType, p, err := ws.ReadMessage()
+		var msg Message
+		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Println("Error reading message:", err)
 			break
 		}
 
-		fmt.Printf("Received message: %s\n", p)
+		// Include the username in the broadcast message
+		msg.Username = username
+		fmt.Printf("Received message from %s: %s\n", username, msg.Content)
 
 		// Broadcast the message to all clients
 		mu.Lock()
 		for c := range clients {
-			if err := c.conn.WriteMessage(messageType, p); err != nil {
+			if err := c.conn.WriteJSON(msg); err != nil {
 				log.Println("Error writing message:", err)
 				c.conn.Close()
 				delete(clients, c)
@@ -69,7 +82,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	delete(clients, client)
 	mu.Unlock()
-	fmt.Println("Client disconnected")
+	fmt.Printf("Client disconnected: %s\n", username)
 }
 
 func main() {
