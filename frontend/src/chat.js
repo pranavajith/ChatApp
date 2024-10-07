@@ -8,6 +8,7 @@ const Chat = () => {
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState(new Set());
+  const [darkMode, setDarkMode] = useState(false); // Add state for dark mode
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -68,9 +69,14 @@ const Chat = () => {
       ws.send(JSON.stringify({ message_type: "typing", username: username }));
     }
   };
+  const toggleTheme = () => {
+    setDarkMode((prev) => !prev); // Toggle the theme
+  };
 
   return (
-    <div className="chat-container">
+    <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
+      {" "}
+      {/* Apply theme class */}
       <div className="user-list">
         <h2>Active Users</h2>
         <ul>
@@ -81,6 +87,9 @@ const Chat = () => {
       </div>
       <div className="chat-area">
         <h1>Chat Application</h1>
+        <button onClick={toggleTheme}>
+          Switch to {darkMode ? "Light" : "Dark"} Mode
+        </button>
         <input
           type="text"
           placeholder="Enter your username"
@@ -110,12 +119,18 @@ const Chat = () => {
         <div>
           <h2>Messages</h2>
           {messages.map((msg, index) => (
-            <div key={index}>
+            <div
+              className={`message-display ${darkMode ? "dark" : "light"}`}
+              key={index}
+            >
               <strong>{msg.username}:</strong> {msg.content}
             </div>
           ))}
           {Array.from(typingUsers).map((user) => (
-            <div key={user}>
+            <div
+              key={user}
+              className={`message-display ${darkMode ? "dark" : "light"}`}
+            >
               <em>{user} is typing...</em>
             </div>
           ))}

@@ -1,23 +1,33 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
-    padding: 20px;
+    /* padding: 20px; */
 }
 
 .chat-container {
     display: flex; /* Use flexbox for side-by-side layout */
+    margin: 0;
+    /* padding: 20px; */
+    height: 100vh; /* Full height */
+    width: 100%; /* Full width */
 }
 
+/* User List */
 .user-list {
     flex: 1; /* Take up 1 part of the available space */
-    margin-right: 20px; /* Add some space between user list and chat area */
+    margin: 20px; /* Add some space between user list and chat area */
+    padding: 10px;
 }
 
+/* Chat Area */
 .chat-area {
     flex: 3; /* Take up 3 parts of the available space */
+    margin: 20px;
+    margin-left: 0;
+    padding: 10px;
 }
 
+/* Text and Background Colors */
 h1, h2 {
     text-align: center;
     color: #333;
@@ -31,6 +41,7 @@ input[type="text"] {
     border-radius: 5px;
 }
 
+/* Button Styles */
 button {
     padding: 10px 15px;
     background-color: #007bff;
@@ -50,29 +61,48 @@ form {
     margin-bottom: 20px;
 }
 
-div {
+/* Light Mode Styles */
+.light {
+    background-color: #f4f4f4;
+}
+
+.light div {
     background-color: white;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.messages {
-    height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #fafafa;
+/* Dark Mode Styles */
+.dark {
+    background-color: #1c1c1c;
 }
 
-.message {
-    margin-bottom: 10px;
+.dark h1, .dark h2 {
+    color: #f4f4f4; /* Light text for dark background */
 }
 
-strong {
-    color: #007bff;
+.dark input[type="text"] {
+    background-color: #333;
+    color: #f4f4f4;
+    border: 1px solid #555; /* Dark border */
+}
+
+.dark button {
+    background-color: #007bff;
+}
+
+.dark button:hover {
+    background-color: #0056b3;
+}
+
+.dark div {
+    background-color: #2c2c2c; /* Darker div background */
+}
+
+.dark .messages {
+    background-color: #444; /* Dark messages background */
+}
+
+.dark .message-display {
+    color: white;
 }
 
 .user-list ul {
