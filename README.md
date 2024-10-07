@@ -1,7 +1,3 @@
-Here’s a well-structured, readable `README.md` based on your provided content:
-
----
-
 # Chat App
 
 Welcome to my first **Chat App**!  
@@ -60,16 +56,24 @@ To run the application, follow these steps:
 
 1. Clone this repository.
 2. Make sure you have Go and Node.js installed.
-3. Run the backend (Go server):
+3. Run the backend and frontend simultaneously using the provided Makefile:
    ```bash
    make run
    ```
-4. Start the frontend:
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
+   This will start both the **Go backend** and the **React frontend** concurrently.
+
+Alternatively, you can run the frontend and backend individually:
+
+- To run the backend (Go server):
+
+  ```bash
+  make run-backend
+  ```
+
+- To run the frontend (React app):
+  ```bash
+  make run-frontend
+  ```
 
 The app will be available at `http://localhost:3000`, and the WebSocket server runs on `ws://localhost:8080/ws`.
 
@@ -91,4 +95,11 @@ Thank you for checking out my Chat App! Stay tuned for more updates and exciting
 
 ---
 
-This structure provides an organized and clean view of your project, making it easy for others to read and understand!
+### How the Makefile Works
+
+- **`make run`**: This target starts both the backend and frontend in parallel.
+- **`make run-backend`**: This starts only the backend (Go) server.
+- **`make run-frontend`**: This starts only the frontend (React) app.
+- **`-j2` option**: This allows two jobs (frontend and backend) to run in parallel, speeding up the launch process.
+
+This structure ensures your backend and frontend components are deployed seamlessly together using a single Makefile command!
