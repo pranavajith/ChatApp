@@ -1,6 +1,0 @@
-.PHONY: run
-
-# Target to run the Go files
-run:
-	@echo "Running Go application..."
-	go run main.go types.go server.go webSocketFunctions.go
