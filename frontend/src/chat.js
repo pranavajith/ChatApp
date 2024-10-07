@@ -33,7 +33,12 @@ const Chat = () => {
     const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, msg]);
+      if (msg.message_type === "user_list") {
+        const users = msg.content.split(", ");
+        setConnectedUsers(users);
+      } else {
+        setMessages((prevMessages) => [...prevMessages, msg]);
+      }
     };
     socket.onerror = (event) => {
       console.error("WebSocket error:", event);
@@ -43,38 +48,48 @@ const Chat = () => {
   };
 
   return (
-    <div>
-      <h1>Chat Application</h1>
-      <input
-        type="text"
-        placeholder="Enter your username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            setWebSocket();
-          }
-        }}
-      />
-      <button onClick={setWebSocket}>Set username</button>
-      <div>
-        <form onSubmit={sendMessage}>
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button type="submit">Send</button>
-        </form>
+    <div className="chat-container">
+      <div className="user-list">
+        <h2>Active Users</h2>
+        <ul>
+          {connectedUsers.map((user, index) => (
+            <li key={index}>{user}</li>
+          ))}
+        </ul>
       </div>
-      <div>
-        <h2>Messages</h2>
-        {messages.map((msg, index) => (
-          <div key={index}>
-            <strong>{msg.username}:</strong> {msg.content}
-          </div>
-        ))}
+      <div className="chat-area">
+        <h1>Chat Application</h1>
+        <input
+          type="text"
+          placeholder="Enter your username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setWebSocket();
+            }
+          }}
+        />
+        <button onClick={setWebSocket}>Set username</button>
+        <div>
+          <form onSubmit={sendMessage}>
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <button type="submit">Send</button>
+          </form>
+        </div>
+        <div>
+          <h2>Messages</h2>
+          {messages.map((msg, index) => (
+            <div key={index}>
+              <strong>{msg.username}:</strong> {msg.content}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

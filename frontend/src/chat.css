@@ -5,7 +5,20 @@ body {
     padding: 20px;
 }
 
-h1 {
+.chat-container {
+    display: flex; /* Use flexbox for side-by-side layout */
+}
+
+.user-list {
+    flex: 1; /* Take up 1 part of the available space */
+    margin-right: 20px; /* Add some space between user list and chat area */
+}
+
+.chat-area {
+    flex: 3; /* Take up 3 parts of the available space */
+}
+
+h1, h2 {
     text-align: center;
     color: #333;
 }
@@ -44,11 +57,6 @@ div {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
-    margin-top: 0;
-    color: #333;
-}
-
 .messages {
     height: 300px;
     overflow-y: auto;
@@ -65,4 +73,16 @@ h2 {
 
 strong {
     color: #007bff;
+}
+
+.user-list ul {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+}
+
+.user-list li {
+    padding: 8px; /* Add padding to list items */
+    background-color: #e9ecef; /* Light gray background */
+    margin-bottom: 5px; /* Space between users */
+    border-radius: 5px; /* Rounded corners */
 }
