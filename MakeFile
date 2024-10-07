@@ -4,7 +4,7 @@ BACKEND_DIR := ./backend
 
 # Define the default target
 .PHONY: all
-all: run-backend run-frontend
+all: run
 
 # Backend target
 .PHONY: run-backend
