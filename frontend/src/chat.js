@@ -7,27 +7,30 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
 
-  useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
-
-    socket.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    };
-
-    setWs(socket);
-
-    return () => {
-      socket.close();
-    };
-  }, [username]);
-
   const sendMessage = (e) => {
     e.preventDefault();
     if (ws && message) {
       ws.send(JSON.stringify({ content: message }));
       setMessage("");
     }
+  };
+
+  const setWebSocket = () => {
+    if (!username) {
+      alert("Input username please!");
+      return;
+    }
+    if (ws) ws.close();
+    const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
+    socket.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      setMessages((prevMessages) => [...prevMessages, msg]);
+    };
+    socket.onerror = (event) => {
+      console.error("WebSocket error:", event);
+      alert("Failed to connect to the chat server. Please try again later.");
+    };
+    setWs(socket);
   };
 
   return (
@@ -39,6 +42,7 @@ const Chat = () => {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
+      <button onClick={setWebSocket}>Set username</button>
       <div>
         <form onSubmit={sendMessage}>
           <input
