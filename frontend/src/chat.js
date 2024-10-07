@@ -6,6 +6,7 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
+  const [connectedUsers, setConnectedUsers] = useState([]);
 
   const sendMessage = (e) => {
     e.preventDefault();

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -29,8 +30,10 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 
 	fmt.Printf("New client connected: %s\n", username)
-	connectMessage := Message{Username: "Server", Content: fmt.Sprintf("%s has connected.", username)}
+
+	connectMessage := Message{Username: "Server", Content: fmt.Sprintf("%s has connected.", username), MessageType: "server_announcement"}
 	s.notifyClients(connectMessage)
+	s.notifyUserList()
 
 	s.historyMu.Lock()
 	for _, msg := range s.messageHistory {
@@ -63,8 +66,9 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 	fmt.Printf("Client disconnected: %s\n", username)
 
-	disconnectMsg := Message{Username: "Server", Content: fmt.Sprintf("%s has disconnected.", username)}
+	disconnectMsg := Message{Username: "Server", Content: fmt.Sprintf("%s has disconnected.", username), MessageType: "server_announcement"}
 	s.notifyClients(disconnectMsg)
+	s.notifyUserList()
 }
 
 func (s *Server) notifyClients(msg Message) {
@@ -77,4 +81,22 @@ func (s *Server) notifyClients(msg Message) {
 			delete(s.clients, c)
 		}
 	}
+}
+
+// Notify clients about the connected users
+func (s *Server) notifyUserList() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	connectedUsernames := make([]string, 0, len(s.clients))
+	for c := range s.clients {
+		connectedUsernames = append(connectedUsernames, c.username) // Collect usernames
+	}
+
+	userListMsg := Message{
+		Username:    "Server",
+		Content:     strings.Join(connectedUsernames, ", "),
+		MessageType: "user_list", // Set the message type
+	}
+
+	s.notifyClients(userListMsg)
 }

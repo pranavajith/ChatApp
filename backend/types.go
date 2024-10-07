@@ -14,8 +14,9 @@ type Client struct {
 
 // Message structure for chat messages
 type Message struct {
-	Username string `json:"username"`
-	Content  string `json:"content"`
+	Username    string `json:"username"`
+	Content     string `json:"content"`
+	MessageType string `json:"message_type"`
 }
 
 type Server struct {
