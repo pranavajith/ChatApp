@@ -15,12 +15,20 @@ const Chat = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [ws]);
+
   const setWebSocket = () => {
+    setMessages([]);
     if (!username) {
       alert("Input username please!");
       return;
     }
-    if (ws) ws.close();
     const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -41,6 +49,11 @@ const Chat = () => {
         placeholder="Enter your username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            setWebSocket();
+          }
+        }}
       />
       <button onClick={setWebSocket}>Set username</button>
       <div>
