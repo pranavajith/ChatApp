@@ -51,6 +51,11 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		if msg.MessageType == "typing" {
+			s.notifyClients(msg, true)
+			continue
+		}
+
 		msg.Username = username
 		fmt.Printf("Received message from %s: %s\n", username, msg.Content)
 

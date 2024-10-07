@@ -32,20 +32,24 @@ const Chat = () => {
       return;
     }
     const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
+
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+
       if (msg.message_type === "user_list") {
         const users = msg.content.split(", ");
         setConnectedUsers(users);
       } else if (msg.message_type === "typing") {
+        if (msg.username === username) {
+          return;
+        }
         setTypingUsers((prevTyping) => {
           const newTyping = new Set(prevTyping);
           newTyping.add(msg.username);
-          // Remove the user from the typing set after a timeout
           setTimeout(() => {
             newTyping.delete(msg.username);
             setTypingUsers(new Set(newTyping));
-          }, 3000); // Clear typing indicator after 3 seconds
+          }, 1500);
           return newTyping;
         });
       } else {
@@ -108,6 +112,11 @@ const Chat = () => {
           {messages.map((msg, index) => (
             <div key={index}>
               <strong>{msg.username}:</strong> {msg.content}
+            </div>
+          ))}
+          {Array.from(typingUsers).map((user) => (
+            <div key={user}>
+              <em>{user} is typing...</em>
             </div>
           ))}
         </div>
