@@ -1,13 +1,11 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    /* padding: 20px; */
 }
 
 .chat-container {
     display: flex; /* Use flexbox for side-by-side layout */
     margin: 0;
-    /* padding: 20px; */
     height: 100vh; /* Full height */
     width: 100%; /* Full width */
 }
@@ -28,21 +26,34 @@ body {
 }
 
 /* Text and Background Colors */
-h1, h2 {
+.chat-title,
+.active-users-title {
     text-align: center;
     color: #333;
 }
 
-input[type="text"] {
+.username-input,
+.message-input {
     padding: 10px;
     margin: 10px 0;
-    width: calc(100% - 22px);
+    width: calc(100% - 22px );
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
+.message-input {
+    width: 1000px;
+    margin-right: 10px;
+}
+
+.message-input-container {
+    display: flex;
+}
+
 /* Button Styles */
-button {
+.theme-toggle-button,
+.set-username-button,
+.send-button {
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
@@ -51,11 +62,13 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.theme-toggle-button:hover,
+.set-username-button:hover,
+.send-button:hover {
     background-color: #0056b3;
 }
 
-form {
+.message-form {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
@@ -66,8 +79,8 @@ form {
     background-color: #f4f4f4;
 }
 
-.light div {
-    background-color: white;
+.light .messages {
+    background-color: #fafafa; /* Light mode background */
 }
 
 /* Dark Mode Styles */
@@ -75,26 +88,33 @@ form {
     background-color: #1c1c1c;
 }
 
-.dark h1, .dark h2 {
+.dark .chat-title,
+.dark .active-users-title {
     color: #f4f4f4; /* Light text for dark background */
 }
 
-.dark input[type="text"] {
+.dark .username-input,
+.dark .message-input {
     background-color: #333;
     color: #f4f4f4;
     border: 1px solid #555; /* Dark border */
 }
 
-.dark button {
+.dark .theme-toggle-button,
+.dark .set-username-button,
+.dark .send-button {
     background-color: #007bff;
 }
 
-.dark button:hover {
+.dark .theme-toggle-button:hover,
+.dark .set-username-button:hover,
+.dark .send-button:hover {
     background-color: #0056b3;
 }
 
-.dark div {
-    background-color: #2c2c2c; /* Darker div background */
+.messages-title-dark {
+    color: white;
+    /* background-color: white; */
 }
 
 .dark .messages {
@@ -110,9 +130,33 @@ form {
     padding: 0; /* Remove padding */
 }
 
-.user-list li {
+.user-list-item {
     padding: 8px; /* Add padding to list items */
     background-color: #e9ecef; /* Light gray background */
     margin-bottom: 5px; /* Space between users */
     border-radius: 5px; /* Rounded corners */
+}
+
+.messages {
+    height: 380px; 
+    overflow-y: auto; /* Enable vertical scrolling when content overflows */
+}
+
+.messages::-webkit-scrollbar {
+    width: 14px; /* Make the scrollbar slimmer */
+}
+
+.messages::-webkit-scrollbar-track {
+    background: #848484; /* Background color of the scrollbar track */
+    border-radius: 10px; /* Round corners for a sleek look */
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background-color: #3d3d3d; /* Scrollbar color */
+    border-radius: 10px; /* Round the scrollbar */
+    border: 2px solid #f1f1f1; /* Adds padding between scrollbar and track */
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+    background-color: #222222; /* Darker color on hover */
 }

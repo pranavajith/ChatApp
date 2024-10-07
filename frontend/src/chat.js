@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./chat.css";
 
 const Chat = () => {
@@ -8,7 +8,9 @@ const Chat = () => {
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState(new Set());
-  const [darkMode, setDarkMode] = useState(false); // Add state for dark mode
+  const [darkMode, setDarkMode] = useState(false);
+
+  const messagesEndRef = useRef(null); // Reference to the last message
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -64,34 +66,43 @@ const Chat = () => {
     setWs(socket);
   };
 
-  const sendTypingIndiactor = () => {
+  const sendTypingIndicator = () => {
     if (ws) {
       ws.send(JSON.stringify({ message_type: "typing", username: username }));
     }
   };
+
   const toggleTheme = () => {
-    setDarkMode((prev) => !prev); // Toggle the theme
+    setDarkMode((prev) => !prev);
   };
+
+  // Scroll to the last message whenever the messages array is updated
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <div className={`chat-container ${darkMode ? "dark" : "light"}`}>
-      {" "}
-      {/* Apply theme class */}
       <div className="user-list">
-        <h2>Active Users</h2>
-        <ul>
+        <h2 className="active-users-title">Active Users</h2>
+        <ul className="user-list-items">
           {connectedUsers.map((user, index) => (
-            <li key={index}>{user}</li>
+            <li key={index} className="user-list-item">
+              {user}
+            </li>
           ))}
         </ul>
       </div>
       <div className="chat-area">
-        <h1>Chat Application</h1>
-        <button onClick={toggleTheme}>
+        <h1 className="chat-title">Chat Application</h1>
+        <button className="theme-toggle-button" onClick={toggleTheme}>
           Switch to {darkMode ? "Light" : "Dark"} Mode
         </button>
         <input
           type="text"
+          className="username-input"
           placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -101,39 +112,51 @@ const Chat = () => {
             }
           }}
         />
-        <button onClick={setWebSocket}>Set username</button>
-        <div>
-          <form onSubmit={sendMessage}>
+        <button className="set-username-button" onClick={setWebSocket}>
+          Set username
+        </button>
+        <div className="message-input-container">
+          <form onSubmit={sendMessage} className="message-form">
             <input
               type="text"
+              className="message-input"
               placeholder="Type a message..."
               value={message}
               onChange={(e) => {
                 setMessage(e.target.value);
-                sendTypingIndiactor();
+                sendTypingIndicator();
               }}
             />
-            <button type="submit">Send</button>
+            <button type="submit" className="send-button">
+              Send
+            </button>
           </form>
         </div>
-        <div>
-          <h2>Messages</h2>
-          {messages.map((msg, index) => (
-            <div
-              className={`message-display ${darkMode ? "dark" : "light"}`}
-              key={index}
-            >
-              <strong>{msg.username}:</strong> {msg.content}
-            </div>
-          ))}
-          {Array.from(typingUsers).map((user) => (
-            <div
-              key={user}
-              className={`message-display ${darkMode ? "dark" : "light"}`}
-            >
-              <em>{user} is typing...</em>
-            </div>
-          ))}
+        <div className="messages-container">
+          <h2 className={`messages-title-${darkMode ? "dark" : "light"}`}>
+            Messages
+          </h2>
+          <div className="messages">
+            {messages.map((msg, index) => (
+              <div
+                className={`message-display ${darkMode ? "dark" : "light"}`}
+                key={index}
+              >
+                <strong className="message-sender">{msg.username}:</strong>{" "}
+                <span className="message-content">{msg.content}</span>
+              </div>
+            ))}
+            {Array.from(typingUsers).map((user) => (
+              <div
+                key={user}
+                className={`message-display ${darkMode ? "dark" : "light"}`}
+              >
+                <em className="typing-indicator">{user} is typing...</em>
+              </div>
+            ))}
+            {/* This is a hidden div to scroll to */}
+            <div ref={messagesEndRef}></div>
+          </div>
         </div>
       </div>
     </div>
