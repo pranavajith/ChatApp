@@ -7,6 +7,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [typingUsers, setTypingUsers] = useState(new Set());
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -36,6 +37,17 @@ const Chat = () => {
       if (msg.message_type === "user_list") {
         const users = msg.content.split(", ");
         setConnectedUsers(users);
+      } else if (msg.message_type === "typing") {
+        setTypingUsers((prevTyping) => {
+          const newTyping = new Set(prevTyping);
+          newTyping.add(msg.username);
+          // Remove the user from the typing set after a timeout
+          setTimeout(() => {
+            newTyping.delete(msg.username);
+            setTypingUsers(new Set(newTyping));
+          }, 3000); // Clear typing indicator after 3 seconds
+          return newTyping;
+        });
       } else {
         setMessages((prevMessages) => [...prevMessages, msg]);
       }
@@ -45,6 +57,12 @@ const Chat = () => {
       alert("Failed to connect to the chat server. Please try again later.");
     };
     setWs(socket);
+  };
+
+  const sendTypingIndiactor = () => {
+    if (ws) {
+      ws.send(JSON.stringify({ message_type: "typing", username: username }));
+    }
   };
 
   return (
@@ -77,7 +95,10 @@ const Chat = () => {
               type="text"
               placeholder="Type a message..."
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                sendTypingIndiactor();
+              }}
             />
             <button type="submit">Send</button>
           </form>

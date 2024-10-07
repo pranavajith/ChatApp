@@ -32,7 +32,7 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("New client connected: %s\n", username)
 
 	connectMessage := Message{Username: "Server", Content: fmt.Sprintf("%s has connected.", username), MessageType: "server_announcement"}
-	s.notifyClients(connectMessage)
+	s.notifyClients(connectMessage, true)
 	s.notifyUserList()
 
 	s.historyMu.Lock()
@@ -58,7 +58,7 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 		s.messageHistory = append(s.messageHistory, msg)
 		s.historyMu.Unlock()
 
-		s.notifyClients(msg)
+		s.notifyClients(msg, true)
 	}
 
 	s.mu.Lock()
@@ -67,13 +67,15 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Client disconnected: %s\n", username)
 
 	disconnectMsg := Message{Username: "Server", Content: fmt.Sprintf("%s has disconnected.", username), MessageType: "server_announcement"}
-	s.notifyClients(disconnectMsg)
+	s.notifyClients(disconnectMsg, true)
 	s.notifyUserList()
 }
 
-func (s *Server) notifyClients(msg Message) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *Server) notifyClients(msg Message, lockCheck bool) {
+	if lockCheck {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+	}
 	for c := range s.clients {
 		fmt.Println("In the loop: ", c.username)
 		if err := c.conn.WriteJSON(msg); err != nil {
@@ -87,8 +89,8 @@ func (s *Server) notifyClients(msg Message) {
 
 // Notify clients about the connected users
 func (s *Server) notifyUserList() {
-	// s.mu.Lock()
-	// defer s.mu.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	connectedUsernames := make([]string, 0, len(s.clients))
 	for c := range s.clients {
 		connectedUsernames = append(connectedUsernames, c.username)
@@ -101,5 +103,5 @@ func (s *Server) notifyUserList() {
 		MessageType: "user_list", // Set the message type
 	}
 
-	s.notifyClients(userListMsg)
+	s.notifyClients(userListMsg, false)
 }
