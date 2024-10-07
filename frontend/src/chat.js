@@ -139,7 +139,9 @@ const Chat = () => {
           <div className="messages">
             {messages.map((msg, index) => (
               <div
-                className={`message-display ${darkMode ? "dark" : "light"}`}
+                className={`message-display message-display-${
+                  darkMode ? "dark" : "light"
+                }`}
                 key={index}
               >
                 <strong className="message-sender">{msg.username}:</strong>{" "}

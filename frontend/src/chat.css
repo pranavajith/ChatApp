@@ -124,6 +124,9 @@ body {
 .dark .message-display {
     color: white;
 }
+.message-display-dark {
+    background-color:#444;
+}
 
 .user-list ul {
     list-style-type: none; /* Remove bullet points */
@@ -138,7 +141,8 @@ body {
 }
 
 .messages {
-    height: 380px; 
+    height: 45vh; 
+    padding: 10px;
     overflow-y: auto; /* Enable vertical scrolling when content overflows */
 }
 
