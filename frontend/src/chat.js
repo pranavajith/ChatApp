@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./chatStyle.css";
 
 const Chat = () => {
   const [username, setUsername] = useState("");
