@@ -10,7 +10,7 @@ all: run
 .PHONY: run-backend
 run-backend:
 	@echo "Running Go backend..."
-	@cd $(BACKEND_DIR) && go run main.go types.go server.go webSocketFunctions.go
+	@cd $(BACKEND_DIR) && go mod tidy && go run main.go types.go server.go webSocketFunctions.go
 
 # Frontend target
 .PHONY: run-frontend
