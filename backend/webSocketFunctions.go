@@ -82,7 +82,7 @@ func (s *Server) notifyClients(msg Message, lockCheck bool) {
 		defer s.mu.Unlock()
 	}
 	for c := range s.clients {
-		fmt.Println("In the loop: ", c.username)
+		// fmt.Println("In the loop: ", c.username)
 		if err := c.conn.WriteJSON(msg); err != nil {
 			log.Println("Error writing message:", err)
 			c.conn.Close()
@@ -100,7 +100,7 @@ func (s *Server) notifyUserList() {
 	for c := range s.clients {
 		connectedUsernames = append(connectedUsernames, c.username)
 	}
-	fmt.Println("Here are connected users: ", connectedUsernames)
+	// fmt.Println("Here are connected users: ", connectedUsernames)
 
 	userListMsg := Message{
 		Username:    "Server",
