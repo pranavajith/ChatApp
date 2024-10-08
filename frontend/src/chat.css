@@ -158,14 +158,14 @@ body {
 }
 
 .user-list-item {
-    padding: 1%; /* Adjust padding for responsiveness */
+    padding: 2%; /* Adjust padding for responsiveness */
     background-color: #e9ecef;
     margin-bottom: 1%;
     border-radius: 5px;
 }
 
 .messages {
-    height: 45vh; 
+    height: 40vh; 
     padding: 2%; 
     overflow-y: auto;
 }
