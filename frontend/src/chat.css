@@ -7,6 +7,7 @@ body {
 .chat-container {
     display: flex;
     margin: 0;
+    /* margin-bottom: 5%; */
     height: 100vh; /* Keeps the container full height */
     width: 100%;
     overflow-y: scroll;
@@ -14,8 +15,8 @@ body {
 
 .user-list {
     flex: 1;
-    margin: 2%; /* Adjust margins using percentages */
-    padding: 1%; /* Use percentage for padding */
+    margin: 2%;
+    padding: 1%;
 }
 
 .chat-area {
@@ -26,74 +27,57 @@ body {
 }
 
 .chat-title,
-.active-users-title {
+.active-users-title, .active-lobbies-title {
     text-align: center;
     color: #333;
+    font-size: 1.8rem; /* Ensuring all titles have a consistent font size */
+    margin-bottom: 20px; /* Adding space below titles */
 }
-
-
 
 .username-input,
-.message-input {
-    padding: 1%; /* Padding adjusted */
-    margin: 1% 0;
-    width: 96%; /* Full width minus some margin */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
+.message-input,
+.lobby-input,
+.search-input,
 .recipient-select {
-    padding: 1%;
-    margin: 1% 0;
+    padding: 10px; /* Consistent padding for inputs */
+    margin: 10px 0; /* Consistent margins for inputs */
+    width: calc(100% - 22px); /* Full width minus some margin */
     border: 1px solid #ccc;
     border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-size: 1rem; /* Consistent font size */
 }
 
 .message-input {
-    width: 80%; /* Relative width for dynamic adjustment */
-    margin-right: 2%;
+    margin-right: 10px; /* Space between input and button */
 }
 
-.send-button {
-    height: 75%;
-}
-
-.recipient-select {
-    margin-right: 2%;
-}
-
-.message-input-container {
-    display: flex;
-    width: 100%;
-}
-
+.send-button,
 .theme-toggle-button,
 .set-username-button,
-.send-button {
-    padding: 1% 2%;
-    background-color: #007bff;
+.create-lobby-button {
+    padding: 10px 15px;
+    background-color: #007bff; /* Primary color */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem; /* Consistent font size */
+    transition: background-color 0.3s ease; /* Smooth background transition */
 }
 
+.send-button:hover,
 .theme-toggle-button:hover,
-.set-username-button:hover,
-.send-button:hover {
-    background-color: #0056b3;
+.set-username-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
 }
 
 .message-form {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2%;
+    /* margin-bottom: 50px; */
     width: 100%;
-}
-
-.recipient-select {
-    width: 15%;
 }
 
 .light {
@@ -109,28 +93,31 @@ body {
 }
 
 .dark .chat-title,
-.dark .active-users-title {
+.dark .active-users-title, .active-lobbies-title {
     color: #f4f4f4;
 }
 
 .dark .username-input,
 .dark .message-input,
-.dark .recipient-select {
+.dark .lobby-input,
+.dark .search-input,
+.dark .recipient-select,
+.dark .lobby-select {
     background-color: #333;
     color: #f4f4f4;
     border: 1px solid #555;
 }
 
+.dark .send-button,
 .dark .theme-toggle-button,
-.dark .set-username-button,
-.dark .send-button {
-    background-color: #007bff;
+.dark .set-username-button {
+    background-color: #007bff; /* Maintain primary color in dark mode */
 }
 
+.dark .send-button:hover,
 .dark .theme-toggle-button:hover,
-.dark .set-username-button:hover,
-.dark .send-button:hover {
-    background-color: #0056b3;
+.dark .set-username-button:hover {
+    background-color: #0056b3; /* Maintain hover effect in dark mode */
 }
 
 .messages-title-dark {
@@ -138,8 +125,8 @@ body {
     font-style: italic;
     font-size: 1.5rem;
 }
+
 .messages-title-light {
-    /* color: white; */
     font-style: italic;
     font-size: 1.5rem;
 }
@@ -148,17 +135,15 @@ body {
     background-color: #444;
 }
 
-.dark .message-display-dark {
-    color: white;
-    /* padding-bottom: 2%; */
-}
-
 .message-display {
-    padding-bottom: 2%;
+    padding: 10px; /* Uniform padding for message displays */
+    margin: 5px 0; /* Space between messages */
+    border-radius: 5px; /* Rounded corners for message bubbles */
 }
 
-.message-display-dark {
+.dark .message-display {
     background-color: #444;
+    color: white;
 }
 
 .user-list ul {
@@ -166,21 +151,38 @@ body {
     padding: 0;
 }
 
-.user-list-item {
-    padding: 2%; /* Adjust padding for responsiveness */
-    background-color: #e9ecef;
-    margin-bottom: 1%;
-    border-radius: 5px;
+.user-list-item, .lobby-list-item {
+    padding: 10px; /* Adjust padding for responsiveness */
+    background-color: #e9ecef; /* Light background for user items */
+    margin-bottom: 5px; /* Space between user items */
+    border-radius: 5px; /* Consistent rounding */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.user-list-item:hover {
+    background-color: #d1d1d1; /* Darker shade on hover */
 }
 
 .messages {
-    height: 40vh; 
-    padding: 2%; 
+    height: 40vh;
+    padding: 10px; /* Uniform padding for messages */
     overflow-y: auto;
 }
 
+.lobby-select {
+    padding: 10px; /* Consistent padding for dropdown */
+    margin: 10px 0; /* Consistent margins for dropdown */
+    width: calc(100% - 22px); /* Full width minus some margin */
+    border: 1px solid #ccc; /* Similar border to inputs */
+    border-radius: 5px; /* Rounded corners for consistency */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-size: 1rem; /* Consistent font size */
+    margin-left: 10px; /* Add left margin for spacing */
+}
+
+
 .messages::-webkit-scrollbar {
-    width: 2%; /* Adjust scrollbar width */
+    width: 8px; /* Adjust scrollbar width */
 }
 
 .messages::-webkit-scrollbar-track {
@@ -191,7 +193,6 @@ body {
 .messages::-webkit-scrollbar-thumb {
     background-color: #3d3d3d;
     border-radius: 10px;
-    border: 0.2em solid #f1f1f1;
 }
 
 .messages::-webkit-scrollbar-thumb:hover {
@@ -205,12 +206,4 @@ body {
 
 .message-dm {
     font-style: italic;
-}
-
-.search-input {
-    padding: 10px;
-    margin: 10px 0;
-    width: calc(100% - 22px); /* Adjust width to match the input */
-    border: 1px solid #ccc;
-    border-radius: 5px;
 }

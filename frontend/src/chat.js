@@ -3,142 +3,161 @@ import "./chat.css";
 
 const Chat = () => {
   const [username, setUsername] = useState("");
+  const [lobbyName, setLobbyName] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [filteredMessages, setFilteredMessages] = useState([]); // State for filtered messages
+  const [filteredMessages, setFilteredMessages] = useState([]);
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const [reciever, setReciever] = useState("All");
+  const [connectedLobbies, setConnectedLobbies] = useState({});
+  const [selectedLobby, setSelectedLobby] = useState("None");
   const [typingUsers, setTypingUsers] = useState(new Set());
-  const [darkMode, setDarkMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [darkMode, setDarkMode] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [userFocused, setUserFocused] = useState(true);
-
   const messagesEndRef = useRef(null);
 
   const sendMessage = (e) => {
     e.preventDefault();
     if (ws && message) {
-      ws.send(
-        JSON.stringify({
-          content: message,
-          reciever: reciever === "All" ? "" : reciever,
-          username: username,
-        })
-      );
+      const msg = JSON.stringify({
+        content: message,
+        username: username,
+        message_type: selectedLobby !== "None" ? "lobby_message" : "message",
+        lobbyId:
+          selectedLobby !== "None" ? connectedLobbies[selectedLobby] : "",
+      });
+      // console.log("Here is connectedLobbies: ", connectedLobbies);
+      console.log("Here is the message sent: ", msg);
+      ws.send(msg);
       setMessage("");
     }
   };
 
-  const requestNotificationPermission = () => {
-    if ("Notification" in window) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          console.log("Notification permission granted.");
-        } else {
-          console.log("Notification permission denied.");
-        }
-      });
+  const generateRandomId = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString();
+  };
+
+  const createLobby = (e) => {
+    // e.preventDefault();
+    if (ws && lobbyName) {
+      ws.send(
+        JSON.stringify({
+          message_type: "create_lobby",
+          username: username,
+          lobbyId: generateRandomId().toString(),
+          content: lobbyName,
+        })
+      );
+      setLobbyName("");
     }
   };
 
-  useEffect(() => {
-    requestNotificationPermission();
+  const joinLobby = (lobbyId) => {
+    if (ws && lobbyId) {
+      ws.send(
+        JSON.stringify({
+          message_type: "join_lobby",
+          username: username,
+          lobbyId: lobbyId,
+        })
+      );
+      console.log(`Joined lobby: ${lobbyId}`);
+    }
+  };
 
-    const handleFocus = () => {
-      setUserFocused(true);
-    };
+  const leaveLobby = (lobbyId) => {
+    if (ws && lobbyId) {
+      ws.send(
+        JSON.stringify({
+          message_type: "leave_lobby",
+          lobbyId: lobbyId,
+        })
+      );
+      console.log(`Left lobby: ${lobbyId}`);
+    }
+  };
 
-    const handleBlur = () => {
-      setUserFocused(false);
-    };
-
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("blur", handleBlur);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, [ws]);
+  const handleLobbyChange = (lobbyName) => {
+    if (selectedLobby !== "None") {
+      leaveLobby(connectedLobbies[selectedLobby]); // Leave the current lobby
+      console.log("Left lobby: ", selectedLobby);
+    }
+    setSelectedLobby(lobbyName); // Set the new lobby
+    if (lobbyName !== "None") {
+      joinLobby(connectedLobbies[lobbyName]); // Join the new lobby
+      console.log("Joined lobby: ", lobbyName);
+    }
+  };
 
   const setWebSocket = () => {
-    setMessages([]);
-    setFilteredMessages([]); // Reset filtered messages
     if (!username) {
       alert("Input username please!");
       return;
     }
+
+    setMessages([]);
+    setFilteredMessages([]);
+
     const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
 
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
-      console.log(msg);
+      console.log("Here is the message received: ", msg);
 
-      if (msg.message_type === "user_list") {
-        const users = msg.content.split(", ");
-        setConnectedUsers(users);
-      } else if (msg.message_type === "typing") {
-        if (msg.username === username) {
-          return;
-        }
-        setTypingUsers((prevTyping) => {
-          const newTyping = new Set(prevTyping);
-          newTyping.add(msg.username);
-          setTimeout(() => {
-            newTyping.delete(msg.username);
-            setTypingUsers(new Set(newTyping));
-          }, 1500);
-          return newTyping;
-        });
-      } else {
-        setMessages((prevMessages) => [...prevMessages, msg]);
-        setFilteredMessages((prevMessages) => [...prevMessages, msg]); // Update filtered messages as well
-        console.log("User focused: ", userFocused);
-        if (!userFocused) {
-          new Notification(`New message from ${msg.username}`, {
-            body: msg.content,
-            // icon: "path/to/icon.png", // Optional: path to an icon
+      switch (msg.message_type) {
+        case "user_list":
+          const users = msg.content.split(", ");
+          setConnectedUsers(users);
+          break;
+
+        case "lobby_list":
+          const lobbies = msg.content.split(", ").reduce((acc, lobby) => {
+            const [name, id] = lobby.split(":");
+            acc[name] = id; // Map lobbyName to lobbyId
+            return acc;
+          }, {});
+          console.log("Here are the available lobbies: ", lobbies);
+          setConnectedLobbies(lobbies);
+          break;
+
+        case "typing":
+          if (msg.username === username) return;
+          setTypingUsers((prevTyping) => {
+            const newTyping = new Set(prevTyping);
+            newTyping.add(msg.username);
+            setTimeout(() => {
+              newTyping.delete(msg.username);
+              setTypingUsers(new Set(newTyping));
+            }, 1500);
+            return newTyping;
           });
-        }
+          break;
+
+        default:
+          setMessages((prevMessages) => [...prevMessages, msg]);
+          setFilteredMessages((prevMessages) => [...prevMessages, msg]);
+          if (!userFocused) {
+            new Notification(`New message from ${msg.username}`, {
+              body: msg.content,
+            });
+          }
+          break;
       }
     };
+
     socket.onerror = (event) => {
       console.error("WebSocket error:", event);
       alert("Failed to connect to the chat server. Please try again later.");
     };
+
     setWs(socket);
-  };
-
-  const sendTypingIndicator = () => {
-    if (ws) {
-      const msg = JSON.stringify({
-        message_type: "typing",
-        username: username,
-        reciever: reciever === "All" ? "" : reciever,
-      });
-      console.log(msg);
-      ws.send(msg);
-    }
-  };
-
-  const toggleTheme = () => {
-    setDarkMode((prev) => !prev);
   };
 
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
     if (query) {
-      // Filter messages based on search query
       const filtered = messages.filter(
         (msg) =>
           msg.content.toLowerCase().includes(query.toLowerCase()) ||
@@ -146,7 +165,6 @@ const Chat = () => {
       );
       setFilteredMessages(filtered);
     } else {
-      // If no search query, show all messages
       setFilteredMessages(messages);
     }
   };
@@ -168,12 +186,25 @@ const Chat = () => {
             </li>
           ))}
         </ul>
+        <h2 className="active-lobbies-title">Active Lobbies</h2>
+        <ul className="lobby-list-items">
+          {Object.entries(connectedLobbies).map(([name, id]) => (
+            <li key={id} className="lobby-list-item">
+              {name}
+            </li>
+          ))}
+        </ul>
       </div>
+
       <div className="chat-area">
         <h1 className="chat-title">Chat Application</h1>
-        <button className="theme-toggle-button" onClick={toggleTheme}>
+        <button
+          className="theme-toggle-button"
+          onClick={() => setDarkMode(!darkMode)}
+        >
           Switch to {darkMode ? "Light" : "Dark"} Mode
         </button>
+
         <input
           type="text"
           className="username-input"
@@ -181,16 +212,40 @@ const Chat = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setWebSocket();
-            }
+            if (e.key === "Enter") setWebSocket();
           }}
         />
         <button className="set-username-button" onClick={setWebSocket}>
           Set username
         </button>
 
-        {/* Search Bar */}
+        <input
+          type="text"
+          className="lobby-input"
+          placeholder="Create a lobby"
+          value={lobbyName}
+          onChange={(e) => setLobbyName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") createLobby();
+          }}
+        />
+        <button className="create-lobby-button" onClick={createLobby}>
+          Create Lobby
+        </button>
+
+        <select
+          className="lobby-select"
+          value={selectedLobby}
+          onChange={(e) => handleLobbyChange(e.target.value)}
+        >
+          <option value="None">None</option>
+          {Object.entries(connectedLobbies).map(([name, id]) => (
+            <option key={id} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           className="search-input"
@@ -200,33 +255,15 @@ const Chat = () => {
         />
 
         <div className="messages-container">
-          <h2 className={`messages-title-${darkMode ? "dark" : "light"}`}>
-            Messages
-          </h2>
           <div className="messages">
             {filteredMessages.map((msg, index) => (
               <div
                 className={`message-display message-display-${
                   darkMode ? "dark" : "light"
-                } ${msg.username === "Server" ? " message-server" : ""} ${
-                  msg.reciever === username && msg.reciever ? " message-dm" : ""
                 }`}
                 key={index}
               >
-                <strong
-                  className={`message-sender ${
-                    msg.username === "Server" ? " message-server" : ""
-                  }`}
-                >
-                  {msg.username}:
-                </strong>{" "}
-                <span
-                  className={`message-content ${
-                    msg.username === "Server" ? " message-server" : ""
-                  }`}
-                >
-                  {msg.content}
-                </span>
+                <strong>{msg.username}:</strong> {msg.content}
               </div>
             ))}
             {Array.from(typingUsers).map((user) => (
@@ -234,41 +271,25 @@ const Chat = () => {
                 key={user}
                 className={`message-display ${darkMode ? "dark" : "light"}`}
               >
-                <em className="typing-indicator">{user} is typing...</em>
+                <em>{user} is typing...</em>
               </div>
             ))}
             <div ref={messagesEndRef}></div>
           </div>
         </div>
-        <div className="message-input-container">
-          <form onSubmit={sendMessage} className="message-form">
-            <input
-              type="text"
-              className="message-input"
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                sendTypingIndicator();
-              }}
-            />
-            <select
-              className="recipient-select"
-              value={reciever}
-              onChange={(e) => setReciever(e.target.value)}
-            >
-              <option value="All">All</option>
-              {connectedUsers.map((user, index) => (
-                <option key={index} value={user}>
-                  {user}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="send-button">
-              Send
-            </button>
-          </form>
-        </div>
+
+        <form onSubmit={sendMessage} className="message-form">
+          <input
+            type="text"
+            className="message-input"
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <button type="submit" className="send-button">
+            Send
+          </button>
+        </form>
       </div>
     </div>
   );
