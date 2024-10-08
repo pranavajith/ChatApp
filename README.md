@@ -22,7 +22,7 @@ I have many plans to make this chat app better in the future. Below is a list of
 - **Message History**: Store chat history on the server-side and retrieve it when users connect. (Update: Done ✅)
 - **Private Messaging**: Enable direct messaging between users for private conversations. (Update: Done ✅)
 - **File Sharing**: Support sending images, documents, and other file types within the chat.
-- **Search Functionality**: Allow users to search through past messages for easy access to information.
+- **Search Functionality**: Allow users to search through past messages for easy access to information. (Update: Done ✅)
 - **Notification System**: Implement browser notifications for new messages, even when the app is not in focus.
 
 ### 3. **Security Features**
