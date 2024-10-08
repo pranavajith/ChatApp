@@ -4,57 +4,71 @@ body {
 }
 
 .chat-container {
-    display: flex; /* Use flexbox for side-by-side layout */
+    display: flex;
     margin: 0;
-    height: 100vh; /* Full height */
-    width: 100%; /* Full width */
+    height: 100vh; /* Keeps the container full height */
+    width: 100%;
 }
 
-/* User List */
 .user-list {
-    flex: 1; /* Take up 1 part of the available space */
-    margin: 20px; /* Add some space between user list and chat area */
-    padding: 10px;
+    flex: 1;
+    margin: 2%; /* Adjust margins using percentages */
+    padding: 1%; /* Use percentage for padding */
 }
 
-/* Chat Area */
 .chat-area {
-    flex: 3; /* Take up 3 parts of the available space */
-    margin: 20px;
+    flex: 3;
+    margin: 2%;
     margin-left: 0;
-    padding: 10px;
+    padding: 1%;
 }
 
-/* Text and Background Colors */
 .chat-title,
 .active-users-title {
     text-align: center;
     color: #333;
 }
 
+
+
 .username-input,
 .message-input {
-    padding: 10px;
-    margin: 10px 0;
-    width: calc(100% - 22px );
+    padding: 1%; /* Padding adjusted */
+    margin: 1% 0;
+    width: 96%; /* Full width minus some margin */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.recipient-select {
+    padding: 1%;
+    margin: 1% 0;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 .message-input {
-    width: 1000px;
-    margin-right: 10px;
+    width: 80%; /* Relative width for dynamic adjustment */
+    margin-right: 2%;
+}
+
+.send-button {
+    height: 75%;
+}
+
+.recipient-select {
+    margin-right: 2%;
 }
 
 .message-input-container {
     display: flex;
+    width: 100%;
 }
 
-/* Button Styles */
 .theme-toggle-button,
 .set-username-button,
 .send-button {
-    padding: 10px 15px;
+    padding: 1% 2%;
     background-color: #007bff;
     color: white;
     border: none;
@@ -71,33 +85,38 @@ body {
 .message-form {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 2%;
+    width: 100%;
 }
 
-/* Light Mode Styles */
+.recipient-select {
+    width: 15%;
+}
+
 .light {
     background-color: #f4f4f4;
 }
 
 .light .messages {
-    background-color: #fafafa; /* Light mode background */
+    background-color: #fafafa;
 }
 
-/* Dark Mode Styles */
 .dark {
     background-color: #1c1c1c;
 }
 
 .dark .chat-title,
 .dark .active-users-title {
-    color: #f4f4f4; /* Light text for dark background */
+    color: #f4f4f4;
 }
 
 .dark .username-input,
-.dark .message-input {
+.dark .message-input,
+.dark .recipient-select {
     background-color: #333;
     color: #f4f4f4;
-    border: 1px solid #555; /* Dark border */
+    border: 1px solid #555;
 }
 
 .dark .theme-toggle-button,
@@ -114,53 +133,67 @@ body {
 
 .messages-title-dark {
     color: white;
-    /* background-color: white; */
 }
 
 .dark .messages {
-    background-color: #444; /* Dark messages background */
+    background-color: #444;
 }
 
 .dark .message-display {
     color: white;
+    padding-bottom: 2%;
 }
+
+.message-display {
+    padding-bottom: 2%;
+}
+
 .message-display-dark {
-    background-color:#444;
+    background-color: #444;
 }
 
 .user-list ul {
-    list-style-type: none; /* Remove bullet points */
-    padding: 0; /* Remove padding */
+    list-style-type: none;
+    padding: 0;
 }
 
 .user-list-item {
-    padding: 8px; /* Add padding to list items */
-    background-color: #e9ecef; /* Light gray background */
-    margin-bottom: 5px; /* Space between users */
-    border-radius: 5px; /* Rounded corners */
+    padding: 1%; /* Adjust padding for responsiveness */
+    background-color: #e9ecef;
+    margin-bottom: 1%;
+    border-radius: 5px;
 }
 
 .messages {
     height: 45vh; 
-    padding: 10px;
-    overflow-y: auto; /* Enable vertical scrolling when content overflows */
+    padding: 2%; 
+    overflow-y: auto;
 }
 
 .messages::-webkit-scrollbar {
-    width: 14px; /* Make the scrollbar slimmer */
+    width: 2%; /* Adjust scrollbar width */
 }
 
 .messages::-webkit-scrollbar-track {
-    background: #848484; /* Background color of the scrollbar track */
-    border-radius: 10px; /* Round corners for a sleek look */
+    background: #848484;
+    border-radius: 10px;
 }
 
 .messages::-webkit-scrollbar-thumb {
-    background-color: #3d3d3d; /* Scrollbar color */
-    border-radius: 10px; /* Round the scrollbar */
-    border: 2px solid #f1f1f1; /* Adds padding between scrollbar and track */
+    background-color: #3d3d3d;
+    border-radius: 10px;
+    border: 0.2em solid #f1f1f1;
 }
 
 .messages::-webkit-scrollbar-thumb:hover {
-    background-color: #222222; /* Darker color on hover */
+    background-color: #222222;
+}
+
+/* New styles for Server and DM messages */
+.message-server {
+    color: red;
+}
+
+.message-dm {
+    font-style: italic;
 }

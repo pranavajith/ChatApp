@@ -7,15 +7,22 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [reciever, setReciever] = useState("All");
   const [typingUsers, setTypingUsers] = useState(new Set());
   const [darkMode, setDarkMode] = useState(false);
 
-  const messagesEndRef = useRef(null); // Reference to the last message
+  const messagesEndRef = useRef(null);
 
   const sendMessage = (e) => {
     e.preventDefault();
     if (ws && message) {
-      ws.send(JSON.stringify({ content: message }));
+      ws.send(
+        JSON.stringify({
+          content: message,
+          reciever: reciever === "All" ? "" : reciever,
+          username: username,
+        })
+      );
       setMessage("");
     }
   };
@@ -38,6 +45,7 @@ const Chat = () => {
 
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+      console.log(msg);
 
       if (msg.message_type === "user_list") {
         const users = msg.content.split(", ");
@@ -68,7 +76,13 @@ const Chat = () => {
 
   const sendTypingIndicator = () => {
     if (ws) {
-      ws.send(JSON.stringify({ message_type: "typing", username: username }));
+      const msg = JSON.stringify({
+        message_type: "typing",
+        username: username,
+        reciever: reciever === "All" ? "" : reciever,
+      });
+      console.log(msg);
+      ws.send(msg);
     }
   };
 
@@ -76,7 +90,6 @@ const Chat = () => {
     setDarkMode((prev) => !prev);
   };
 
-  // Scroll to the last message whenever the messages array is updated
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -127,6 +140,18 @@ const Chat = () => {
                 sendTypingIndicator();
               }}
             />
+            <select
+              className="recipient-select"
+              value={reciever}
+              onChange={(e) => setReciever(e.target.value)}
+            >
+              <option value="All">All</option>
+              {connectedUsers.map((user, index) => (
+                <option key={index} value={user}>
+                  {user}
+                </option>
+              ))}
+            </select>
             <button type="submit" className="send-button">
               Send
             </button>
@@ -141,6 +166,8 @@ const Chat = () => {
               <div
                 className={`message-display message-display-${
                   darkMode ? "dark" : "light"
+                } ${msg.username === "Server" ? "message-server" : ""} ${
+                  msg.reciever === username && msg.reciever ? "message-dm" : ""
                 }`}
                 key={index}
               >
@@ -156,7 +183,6 @@ const Chat = () => {
                 <em className="typing-indicator">{user} is typing...</em>
               </div>
             ))}
-            {/* This is a hidden div to scroll to */}
             <div ref={messagesEndRef}></div>
           </div>
         </div>

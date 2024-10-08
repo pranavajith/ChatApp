@@ -17,6 +17,7 @@ type Message struct {
 	Username    string `json:"username"`
 	Content     string `json:"content"`
 	MessageType string `json:"message_type"`
+	Reciever    string `json:"reciever"`
 }
 
 type Server struct {

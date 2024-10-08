@@ -32,13 +32,15 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("New client connected: %s\n", username)
 
 	connectMessage := Message{Username: "Server", Content: fmt.Sprintf("%s has connected.", username), MessageType: "server_announcement"}
-	s.notifyClients(connectMessage, true)
+	s.notifyClients(connectMessage, true, "")
 	s.notifyUserList()
 
 	s.historyMu.Lock()
 	for _, msg := range s.messageHistory {
-		if err := ws.WriteJSON(msg); err != nil {
-			log.Println("Error sending message history:", err)
+		if msg.Reciever == username || msg.Reciever == "" {
+			if err := ws.WriteJSON(msg); err != nil {
+				log.Println("Error sending message history:", err)
+			}
 		}
 	}
 	s.historyMu.Unlock()
@@ -52,7 +54,7 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if msg.MessageType == "typing" {
-			s.notifyClients(msg, true)
+			s.notifyClients(msg, true, msg.Reciever)
 			continue
 		}
 
@@ -63,7 +65,7 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 		s.messageHistory = append(s.messageHistory, msg)
 		s.historyMu.Unlock()
 
-		s.notifyClients(msg, true)
+		s.notifyClients(msg, true, msg.Reciever)
 	}
 
 	s.mu.Lock()
@@ -72,24 +74,27 @@ func (s *Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Client disconnected: %s\n", username)
 
 	disconnectMsg := Message{Username: "Server", Content: fmt.Sprintf("%s has disconnected.", username), MessageType: "server_announcement"}
-	s.notifyClients(disconnectMsg, true)
+	s.notifyClients(disconnectMsg, true, "")
 	s.notifyUserList()
 }
 
-func (s *Server) notifyClients(msg Message, lockCheck bool) {
+func (s *Server) notifyClients(msg Message, lockCheck bool, recieverUsername string) {
 	if lockCheck {
 		s.mu.Lock()
 		defer s.mu.Unlock()
 	}
 	for c := range s.clients {
-		// fmt.Println("In the loop: ", c.username)
-		if err := c.conn.WriteJSON(msg); err != nil {
-			log.Println("Error writing message:", err)
-			c.conn.Close()
-			delete(s.clients, c)
+		// fmt.Println(recieverUsername, " and the c.username is ", c.username)
+		if recieverUsername == "" || c.username == recieverUsername {
+			// fmt.Println("In the loop: ", c.username)
+			if err := c.conn.WriteJSON(msg); err != nil {
+				log.Println("Error writing message:", err)
+				c.conn.Close()
+				delete(s.clients, c)
+			}
 		}
 	}
-	fmt.Println("Message sent to clients: ", msg)
+	// fmt.Println("Message sent to clients: ", msg)
 }
 
 // Notify clients about the connected users
@@ -108,5 +113,5 @@ func (s *Server) notifyUserList() {
 		MessageType: "user_list", // Set the message type
 	}
 
-	s.notifyClients(userListMsg, false)
+	s.notifyClients(userListMsg, false, "")
 }
