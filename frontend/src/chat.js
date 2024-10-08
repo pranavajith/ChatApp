@@ -12,6 +12,7 @@ const Chat = () => {
   const [typingUsers, setTypingUsers] = useState(new Set());
   const [darkMode, setDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [userFocused, setUserFocused] = useState(true);
 
   const messagesEndRef = useRef(null);
 
@@ -28,6 +29,38 @@ const Chat = () => {
       setMessage("");
     }
   };
+
+  const requestNotificationPermission = () => {
+    if ("Notification" in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted.");
+        } else {
+          console.log("Notification permission denied.");
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    requestNotificationPermission();
+
+    const handleFocus = () => {
+      setUserFocused(true);
+    };
+
+    const handleBlur = () => {
+      setUserFocused(false);
+    };
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -69,6 +102,13 @@ const Chat = () => {
       } else {
         setMessages((prevMessages) => [...prevMessages, msg]);
         setFilteredMessages((prevMessages) => [...prevMessages, msg]); // Update filtered messages as well
+        console.log("User focused: ", userFocused);
+        if (!userFocused) {
+          new Notification(`New message from ${msg.username}`, {
+            body: msg.content,
+            // icon: "path/to/icon.png", // Optional: path to an icon
+          });
+        }
       }
     };
     socket.onerror = (event) => {
