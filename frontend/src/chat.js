@@ -128,35 +128,6 @@ const Chat = () => {
         <button className="set-username-button" onClick={setWebSocket}>
           Set username
         </button>
-        <div className="message-input-container">
-          <form onSubmit={sendMessage} className="message-form">
-            <input
-              type="text"
-              className="message-input"
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                sendTypingIndicator();
-              }}
-            />
-            <select
-              className="recipient-select"
-              value={reciever}
-              onChange={(e) => setReciever(e.target.value)}
-            >
-              <option value="All">All</option>
-              {connectedUsers.map((user, index) => (
-                <option key={index} value={user}>
-                  {user}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="send-button">
-              Send
-            </button>
-          </form>
-        </div>
         <div className="messages-container">
           <h2 className={`messages-title-${darkMode ? "dark" : "light"}`}>
             Messages
@@ -185,6 +156,35 @@ const Chat = () => {
             ))}
             <div ref={messagesEndRef}></div>
           </div>
+        </div>
+        <div className="message-input-container">
+          <form onSubmit={sendMessage} className="message-form">
+            <input
+              type="text"
+              className="message-input"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                sendTypingIndicator();
+              }}
+            />
+            <select
+              className="recipient-select"
+              value={reciever}
+              onChange={(e) => setReciever(e.target.value)}
+            >
+              <option value="All">All</option>
+              {connectedUsers.map((user, index) => (
+                <option key={index} value={user}>
+                  {user}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="send-button">
+              Send
+            </button>
+          </form>
         </div>
       </div>
     </div>

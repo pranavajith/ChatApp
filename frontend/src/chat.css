@@ -133,6 +133,13 @@ body {
 
 .messages-title-dark {
     color: white;
+    font-style: italic;
+    font-size: 1.5rem;
+}
+.messages-title-light {
+    /* color: white; */
+    font-style: italic;
+    font-size: 1.5rem;
 }
 
 .dark .messages {
