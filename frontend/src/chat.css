@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
+    height: 100%;
 }
 
 .chat-container {
@@ -8,6 +9,7 @@ body {
     margin: 0;
     height: 100vh; /* Keeps the container full height */
     width: 100%;
+    overflow-y: scroll;
 }
 
 .user-list {
@@ -146,9 +148,9 @@ body {
     background-color: #444;
 }
 
-.dark .message-display {
+.dark .message-display-dark {
     color: white;
-    padding-bottom: 2%;
+    /* padding-bottom: 2%; */
 }
 
 .message-display {
@@ -203,4 +205,12 @@ body {
 
 .message-dm {
     font-style: italic;
+}
+
+.search-input {
+    padding: 10px;
+    margin: 10px 0;
+    width: calc(100% - 22px); /* Adjust width to match the input */
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }

@@ -5,11 +5,13 @@ const Chat = () => {
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]); // State for filtered messages
   const [ws, setWs] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [reciever, setReciever] = useState("All");
   const [typingUsers, setTypingUsers] = useState(new Set());
   const [darkMode, setDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
 
   const messagesEndRef = useRef(null);
 
@@ -37,6 +39,7 @@ const Chat = () => {
 
   const setWebSocket = () => {
     setMessages([]);
+    setFilteredMessages([]); // Reset filtered messages
     if (!username) {
       alert("Input username please!");
       return;
@@ -65,6 +68,7 @@ const Chat = () => {
         });
       } else {
         setMessages((prevMessages) => [...prevMessages, msg]);
+        setFilteredMessages((prevMessages) => [...prevMessages, msg]); // Update filtered messages as well
       }
     };
     socket.onerror = (event) => {
@@ -88,6 +92,23 @@ const Chat = () => {
 
   const toggleTheme = () => {
     setDarkMode((prev) => !prev);
+  };
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query) {
+      // Filter messages based on search query
+      const filtered = messages.filter(
+        (msg) =>
+          msg.content.toLowerCase().includes(query.toLowerCase()) ||
+          msg.username.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredMessages(filtered);
+    } else {
+      // If no search query, show all messages
+      setFilteredMessages(messages);
+    }
   };
 
   useEffect(() => {
@@ -128,22 +149,44 @@ const Chat = () => {
         <button className="set-username-button" onClick={setWebSocket}>
           Set username
         </button>
+
+        {/* Search Bar */}
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search messages..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+
         <div className="messages-container">
           <h2 className={`messages-title-${darkMode ? "dark" : "light"}`}>
             Messages
           </h2>
           <div className="messages">
-            {messages.map((msg, index) => (
+            {filteredMessages.map((msg, index) => (
               <div
                 className={`message-display message-display-${
                   darkMode ? "dark" : "light"
-                } ${msg.username === "Server" ? "message-server" : ""} ${
-                  msg.reciever === username && msg.reciever ? "message-dm" : ""
+                } ${msg.username === "Server" ? " message-server" : ""} ${
+                  msg.reciever === username && msg.reciever ? " message-dm" : ""
                 }`}
                 key={index}
               >
-                <strong className="message-sender">{msg.username}:</strong>{" "}
-                <span className="message-content">{msg.content}</span>
+                <strong
+                  className={`message-sender ${
+                    msg.username === "Server" ? " message-server" : ""
+                  }`}
+                >
+                  {msg.username}:
+                </strong>{" "}
+                <span
+                  className={`message-content ${
+                    msg.username === "Server" ? " message-server" : ""
+                  }`}
+                >
+                  {msg.content}
+                </span>
               </div>
             ))}
             {Array.from(typingUsers).map((user) => (
