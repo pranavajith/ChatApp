@@ -3,6 +3,9 @@
 Welcome to my first **Chat App**!  
 It may be minimal and have some quirks, but it’s a start, and I’m excited to share it with you. 🎉
 
+[Deployed Site](https://chat-app-ebon-eta.vercel.app/)
+Note: If you are loading it for the first time, you may have to give a good 1-5 mins after setting the username to see changes in the UI, as the backend server is running on the free model, and hence would take some time to boot up after loading off after 15 mins of inactivity. Thanks!
+
 ## Features in Progress
 
 I have many plans to make this chat app better in the future. Below is a list of some enhancements and improvements I hope to implement soon.
