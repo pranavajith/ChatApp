@@ -24,6 +24,7 @@ I have many plans to make this chat app better in the future. Below is a list of
 - **File Sharing**: Support sending images, documents, and other file types within the chat.
 - **Search Functionality**: Allow users to search through past messages for easy access to information. (Update: Done ✅)
 - **Notification System**: Implement browser notifications for new messages, even when the app is not in focus. (Update: Done ✅)
+- **Deploy Website Online**: Deploy the Frontend and Backend online
 
 ### 3. **Security Features**
 
