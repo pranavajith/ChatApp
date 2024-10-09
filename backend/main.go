@@ -1,7 +1,15 @@
 package main
 
-func main() {
+import (
+	"os"
+)
 
-	server := newServer("8080")
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	server := newServer(port)
 	server.Run()
 }

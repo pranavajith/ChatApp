@@ -20,8 +20,8 @@ func (s *Server) Run() {
 	// Serve the WebSocket endpoint
 	http.HandleFunc("/ws", s.handleConnections)
 
-	// Start the server on port 8080
-	fmt.Println("Server started on http:/localhost:", s.serverAddress)
+	// Start the server on the specified port
+	fmt.Println("Server started on http://0.0.0.0:", s.serverAddress)
 	err := http.ListenAndServe(":"+s.serverAddress, nil)
 	if err != nil {
 		log.Fatalf("Server failed to start: %v", err)
