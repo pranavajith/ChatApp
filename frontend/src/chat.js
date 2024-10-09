@@ -99,7 +99,9 @@ const Chat = () => {
     setMessages([]);
     setFilteredMessages([]);
 
-    const socket = new WebSocket("ws://localhost:8080/ws?username=" + username);
+    const socket = new WebSocket(
+      "wss://chatapp-yvlc.onrender.com/ws?username=" + username
+    );
 
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
